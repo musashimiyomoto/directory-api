@@ -1,0 +1,48 @@
+services:
+  api:
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: [ "bash", "/docker-entrypoint.sh", "gunicorn", "main:app" ]
+
+  db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_LOGIN}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    healthcheck:
+      test:
+        - "CMD"
+        - "sh"
+        - "-c"
+        - "pg_isready -U ${DB_LOGIN}"
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  db-ui:
+    image: adminer:5.3.0
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
