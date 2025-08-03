@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "directory"
+name = "directory-api"
 version = "0.1.0"
 description = "REST API for Directory"
 authors = ["kioharu"]
@@ -7,7 +7,7 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "3.11.*"
+python = "3.12.*"
 alembic = "1.14.1"
 fastapi = { version = "0.115.7", extras = ["standard"] }
 gunicorn = { extras = ["gevent"], version = "23.0.0" }
@@ -25,17 +25,6 @@ isort = "*"
 pre-commit = "*"
 pyright = { extras = ["nodejs"], version = "*" }
 ruff = "*"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "*"
-pytest-asyncio = "*"
-pytest-cov = "*"
-factory-boy = "*"
-faker = "*"
-aiosqlite = "*"
 
 [tool.black]
 line-length = 88
@@ -82,25 +71,10 @@ select = [
 ]
 exclude = ["db/alembic/versions/*.py", "db/alembic/env.py"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*.py" = [
-    "S101",    # "Use of `assert` detected"
-]
-
 [tool.pyright]
 typeCheckingMode = "standard"
-pythonVersion = "3.11"
+pythonVersion = "3.12"
 ignore = ["db"]
-
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::sqlalchemy.exc.MovedIn20Warning",
-    "ignore::pydantic._internal._config.PydanticDeprecatedSince20"
-]
-
-[tool.coverage.run]
-omit = ["tests/*", "db/alembic/versions/*"]
 
 [build-system]
 requires = ["poetry-core"]

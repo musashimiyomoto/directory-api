@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from constants.activity import MAX_LEVEL
 from db import models
 
 
@@ -15,7 +16,9 @@ async def get_organizations_by_name(
     query = select(models.Organization)
     if name:
         query = query.where(models.Organization.name.ilike(f"%{name}%"))
+
     result = await session.execute(query.offset(skip).limit(limit))
+
     return result.scalars().all()
 
 
@@ -28,6 +31,7 @@ async def get_organizations_by_building_id(
         .offset(skip)
         .limit(limit)
     )
+
     return result.scalars().all()
 
 
@@ -51,8 +55,9 @@ async def get_organizations_by_activity_id(
         activity = activity_result.scalar_one_or_none()
 
         if not activity:
-            return None
-        if activity.level < 3:
+            return []
+
+        if activity.level < MAX_LEVEL:
             children_result = await session.execute(
                 select(models.Activity).where(models.Activity.parent_id == activity_id)
             )
@@ -78,10 +83,11 @@ async def get_organizations_by_activity_id(
         query = query.where(models.OrganizationActivity.activity_id == activity_id)
 
     result = await session.execute(query.offset(skip).limit(limit))
+
     return result.scalars().all()
 
 
-async def get_organizations_by_radius(
+async def get_organizations_by_radius(  # noqa: PLR0913
     skip: int,
     limit: int,
     center_latitude: float,
@@ -90,26 +96,31 @@ async def get_organizations_by_radius(
     session: AsyncSession,
 ) -> list[models.Organization]:
     buildings_result = await session.execute(select(models.Building))
+
     building_ids = []
     for building in buildings_result.scalars().all():
         distance = geodesic(
             (center_latitude, center_longitude),
             (building.latitude, building.longitude),
         ).kilometers
+
         if distance <= radius:
             building_ids.append(building.id)
+
     if not building_ids:
         return []
+
     result = await session.execute(
         select(models.Organization)
         .where(models.Organization.building_id.in_(building_ids))
         .offset(skip)
         .limit(limit)
     )
+
     return result.scalars().all()
 
 
-async def get_organizations_by_rectangle(
+async def get_organizations_by_rectangle(  # noqa: PLR0913
     skip: int,
     limit: int,
     min_latitude: float,
@@ -126,15 +137,18 @@ async def get_organizations_by_rectangle(
             & (models.Building.longitude <= max_longitude)
         )
     )
+
     building_ids = buildings_result.scalars().all()
     if not building_ids:
         return []
+
     result = await session.execute(
         select(models.Organization)
         .where(models.Organization.building_id.in_(building_ids))
         .offset(skip)
         .limit(limit)
     )
+
     return result.scalars().all()
 
 
@@ -154,4 +168,5 @@ async def get_organization_detail(
             .where(models.Organization.id == organization_id)
         )
     )
+
     return result.scalar_one_or_none()

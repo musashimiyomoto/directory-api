@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +15,11 @@ from api.schemas import (
 )
 from db import queries
 
-router = APIRouter(prefix="/organizations", dependencies=[Depends(validate_api_key)])
+router = APIRouter(
+    prefix="/organizations",
+    tags=["Organizations"],
+    dependencies=[Depends(dependency=validate_api_key)],
+)
 
 
 @router.get(
@@ -21,17 +27,15 @@ router = APIRouter(prefix="/organizations", dependencies=[Depends(validate_api_k
     description="Get organizations with optional name filter",
 )
 async def get_organizations_by_name(
-    params: OrganizationByNameQuery = Query(),
-    session: AsyncSession = Depends(get_session),
+    params: Annotated[OrganizationByNameQuery, Query()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[Organization]:
-    return list(
-        map(
-            Organization.model_validate,
-            await queries.get_organizations_by_name(
-                session=session, **params.model_dump()
-            ),
+    return [
+        Organization.model_validate(organization)
+        for organization in await queries.get_organizations_by_name(
+            session=session, **params.model_dump()
         )
-    )
+    ]
 
 
 @router.get(
@@ -39,17 +43,15 @@ async def get_organizations_by_name(
     description="Get organizations in a specific building",
 )
 async def get_organizations_by_building(
-    params: OrganizationByBuildingQuery = Query(),
-    session: AsyncSession = Depends(get_session),
+    params: Annotated[OrganizationByBuildingQuery, Query()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[Organization]:
-    return list(
-        map(
-            Organization.model_validate,
-            await queries.get_organizations_by_building_id(
-                session=session, **params.model_dump()
-            ),
+    return [
+        Organization.model_validate(organization)
+        for organization in await queries.get_organizations_by_building_id(
+            session=session, **params.model_dump()
         )
-    )
+    ]
 
 
 @router.get(
@@ -57,17 +59,15 @@ async def get_organizations_by_building(
     description="Get organizations with a specific activity",
 )
 async def get_organizations_by_activity(
-    params: OrganizationByActivityQuery = Query(),
-    session: AsyncSession = Depends(get_session),
+    params: Annotated[OrganizationByActivityQuery, Query()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[Organization]:
-    return list(
-        map(
-            Organization.model_validate,
-            await queries.get_organizations_by_activity_id(
-                session=session, **params.model_dump()
-            ),
+    return [
+        Organization.model_validate(organization)
+        for organization in await queries.get_organizations_by_activity_id(
+            session=session, **params.model_dump()
         )
-    )
+    ]
 
 
 @router.post(
@@ -75,17 +75,15 @@ async def get_organizations_by_activity(
     description="Search organizations within a radius from a center point",
 )
 async def search_organizations_by_radius(
-    params: OrganizationByRadiusQuery = Query(),
-    session: AsyncSession = Depends(get_session),
+    params: Annotated[OrganizationByRadiusQuery, Query()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[Organization]:
-    return list(
-        map(
-            Organization.model_validate,
-            await queries.get_organizations_by_radius(
-                session=session, **params.model_dump()
-            ),
+    return [
+        Organization.model_validate(organization)
+        for organization in await queries.get_organizations_by_radius(
+            session=session, **params.model_dump()
         )
-    )
+    ]
 
 
 @router.post(
@@ -93,17 +91,15 @@ async def search_organizations_by_radius(
     description="Search organizations within a rectangular area",
 )
 async def search_organizations_by_rectangle(
-    params: OrganizationByRectangleQuery = Query(),
-    session: AsyncSession = Depends(get_session),
+    params: Annotated[OrganizationByRectangleQuery, Query()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[Organization]:
-    return list(
-        map(
-            Organization.model_validate,
-            await queries.get_organizations_by_rectangle(
-                session=session, **params.model_dump()
-            ),
+    return [
+        Organization.model_validate(organization)
+        for organization in await queries.get_organizations_by_rectangle(
+            session=session, **params.model_dump()
         )
-    )
+    ]
 
 
 @router.get(
@@ -111,7 +107,7 @@ async def search_organizations_by_rectangle(
     description="Get detailed information about a specific organization",
 )
 async def get_organization(
-    organization_id: int, session: AsyncSession = Depends(get_session)
+    organization_id: int, session: Annotated[AsyncSession, Depends(get_session)]
 ) -> OrganizationDetail:
     organization = await queries.get_organization_detail(
         session=session, organization_id=organization_id

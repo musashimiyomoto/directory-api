@@ -1,5 +1,5 @@
 default_install_hook_types: [pre-commit, post-checkout, post-merge, commit-msg]
-exclude: "^(db/alembic|dev.sh)"
+exclude: "^(db/alembic)"
 repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.0.0
@@ -9,7 +9,7 @@ repos:
         args:
           [
             --scopes,
-            "api,constants,db,enums,exceptions,explorers,repositories,schemas,settings,usecases",
+            "api,constants,db",
             --strict,
             feat,
             fix,
@@ -28,7 +28,7 @@ repos:
       - id: poetry-check
       - id: poetry-lock
       - id: poetry-install
-        args: ["--with", "dev,test"]
+        args: ["--with", "dev"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -36,9 +36,6 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: mixed-line-ending
-      - id: name-tests-test
-        args: ["--pytest-test-first"]
-        exclude: "tests/factories"
       - id: trailing-whitespace
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.3.1
