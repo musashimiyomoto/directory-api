@@ -10,6 +10,8 @@ from db.models import (
 )
 from db.sessions import async_session
 
+logger = logging.getLogger(__name__)
+
 
 async def create_activities() -> dict[str, Activity]:
     """Create sample activities hierarchy
@@ -173,7 +175,7 @@ async def seed_db() -> None:
     await create_organizations(
         buildings=await create_buildings(), activities=await create_activities()
     )
-    logging.info("Database seeded successfully")
+    logger.info("Database seeded successfully")
 
 
 if __name__ == "__main__":
