@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from constants.activity import MAX_LEVEL
 from db import models
 
 
@@ -54,9 +55,9 @@ async def get_organizations_by_activity_id(
         activity = activity_result.scalar_one_or_none()
 
         if not activity:
-            return None
+            return []
 
-        if activity.level < 3:
+        if activity.level < MAX_LEVEL:
             children_result = await session.execute(
                 select(models.Activity).where(models.Activity.parent_id == activity_id)
             )
@@ -86,7 +87,7 @@ async def get_organizations_by_activity_id(
     return result.scalars().all()
 
 
-async def get_organizations_by_radius(
+async def get_organizations_by_radius(  # noqa: PLR0913
     skip: int,
     limit: int,
     center_latitude: float,
@@ -119,7 +120,7 @@ async def get_organizations_by_radius(
     return result.scalars().all()
 
 
-async def get_organizations_by_rectangle(
+async def get_organizations_by_rectangle(  # noqa: PLR0913
     skip: int,
     limit: int,
     min_latitude: float,
