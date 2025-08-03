@@ -19,8 +19,8 @@ REST API for Organizations Directory built with FastAPI, SQLAlchemy, and Postgre
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/musashimiyomoto/directory.git
-cd directory
+git clone https://github.com/musashimiyomoto/directory-api.git
+cd directory-api
 ```
 
 2. Create an environment file:
