@@ -31,11 +31,17 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --with dev,test
 
-    - name: Make dev.sh executable
-      run: chmod +x dev.sh
+    - name: Check black
+      run: poetry run black --check --diff .
 
-    - name: Check code formatting
-      run: ./dev.sh check
+    - name: Check isort
+      run: poetry run isort --check-only --diff .
+
+    - name: Check ruff
+      run: poetry run ruff check .
+
+    - name: Check pyright
+      run: poetry run pyright .
 
     - name: Run tests
-      run: ./dev.sh test
+      run: poetry run pytest -v --cov=. --cov-report=term-missing --cov-report=xml
