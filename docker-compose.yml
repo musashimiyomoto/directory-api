@@ -16,7 +16,7 @@ services:
     image: postgres:14-alpine
     restart: always
     environment:
-      POSTGRES_USER: ${DB_LOGIN}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     env_file:
@@ -30,7 +30,7 @@ services:
         - "CMD"
         - "sh"
         - "-c"
-        - "pg_isready -U ${DB_LOGIN}"
+        - "pg_isready -U ${DB_USER}"
       interval: 2s
       timeout: 3s
       retries: 40
